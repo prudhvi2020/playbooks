@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: False
+
+  tasks:
+   - name: Fetch Java version
+     shell: java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g'
+     changed_when: False
+     register: java_result
+
+   - debug:
+       msg: "{{ java_result.stdout }}"
+   - name: install "{{pkg}}"
+     vars:
+       - pkg: openjdk-11-jdk
+     apt:
+      name: "{{pkg}}"
+      state: present
+     when: java_result != "1.8.0_275"
